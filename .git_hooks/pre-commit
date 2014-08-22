@@ -1,0 +1,58 @@
+#!/bin/bash
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+# Redirect output to stderr.
+exec 1>&2
+
+req_pylint_score="8.0"
+git diff --cached --name-only --diff-filter=ACM | grep '\.py$' | while read file; do
+
+  git show :"$file" > /tmp/file_to_pylint
+  
+  echo "Pylint $file"
+  pylint_score=$(pylint /tmp/file_to_pylint | egrep -o '^Your code has been rated at [0-9]{,2}\.[0-9]{,2}/10' | egrep -o '[0-9]{,2}\.[0-9]{,2}')
+  result=$(echo "$pylint_score > $req_pylint_score" | bc)
+  if [[ $result != 1 ]]
+  then
+    rm /tmp/file_to_pylint
+    echo "Error: $file had a score of $pylint_score; required $req_pylint_score."
+    exit 1
+  fi
+  
+  rm /tmp/file_to_pylint
+done
+
+if [[ $? != 0 ]]
+then
+  exit 1
+fi
+
+
+git diff --cached --name-only --diff-filter=ACM | grep '\.cpp$' | while read file; do
+
+  git show :"$file" > /tmp/file_to_cppcheck
+
+  echo "cppcheck $file"
+  cppcheck --inline-suppr /tmp/file_to_cppcheck &>/dev/null
+
+  if [[ $? != 0 ]]
+  then
+    rm /tmp/file_to_cppcheck
+    echo "Error: $file did not pass cppcheck."
+    exit 1
+  fi
+
+  rm /tmp/file_to_cppcheck
+done
+
+if [[ $? != 0 ]]
+then
+  exit 1
+fi

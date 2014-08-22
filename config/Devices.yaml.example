@@ -1,0 +1,253 @@
+--- 
+devices:
+-
+    id: security
+    type: device
+    topic: /home/security
+    name: Security
+    webapp:
+        controllable: True
+        control_cycle_time: 5 # 5 seconds
+        control_values:
+            disarm:
+                humanize: Disarm
+                colorize: info
+                icon: eye-close
+            arm:
+                humanize: Arm
+                colorize: info
+                icon: eye-open
+            auto:
+                humanize: Auto
+                colorize: primary
+                icon: user
+        monitor_colorize: 
+            Disarmed: danger
+            Armed: success
+            Armed (Auto): success
+            Disarmed (Auto): warning
+    sqlite: true
+    prowlalert: true 
+
+-
+    id: garage_door
+    type: device
+    topic: /home/garage_door
+    name: Garage
+    webapp:
+        controllable: True
+        control_cycle_time: 15 # 15 seconds
+        control_values:
+            toggle:
+                humanize: Toggle
+                colorize: info
+                icon: sort
+        monitor_colorize: 
+            Open: danger
+            Closed: success
+    rf24mqtt: 
+        controllable: true
+        control_values:
+            toggle: 031~toggle
+    bt2mqtt:
+        trigger: true
+    prowlalert: 
+        event: Garage Door Opened 
+        description: The garage door was opened...
+    sqlite: 
+        history: '*' # Save all
+    filter:
+        type: enum
+        parameters:
+            0: 'Open'
+            1: 'Closed'
+
+-
+    id: front_door
+    type: device
+    topic: /home/front_door
+    name: Front Door
+    webapp:
+        monitor_timeout: 86400 # 24 Hours
+        monitor_colorize: 
+            Open: danger
+            Closed: success
+    bt2mqtt:
+        trigger: true
+    rf24mqtt: true
+    prowlalert: 
+        event: Front Door Opened 
+        description: The front door was opened...
+        camera_preset: 0
+    sqlite: 
+        history: '*' # Save all
+    filter:
+        type: enum
+        parameters:
+            0: 'Open'
+            1: 'Closed'
+-
+    id: front_door/v
+    type: device
+    topic: /home/battery/front_door
+    rf24mqtt: true
+    rf24batterymonitor: true
+
+-
+    id: back_door
+    type: device
+    topic: /home/back_door
+    name: Back Door
+    webapp:
+        monitor_timeout: 86400 # 24 Hours
+        monitor_colorize: 
+            Open: danger
+            Closed: success
+    bt2mqtt:
+        trigger: true  
+    rf24mqtt: true
+    prowlalert: 
+        event: Back Door Opened 
+        description: The back door was opened...
+        camera_preset: 1
+    sqlite: 
+        history: '*' # Save all
+    filter:
+        type: enum
+        parameters:
+            0: 'Open'
+            1: 'Closed'
+
+-
+    id: back_door/v
+    type: device
+    topic: /home/battery/back_door
+    rf24mqtt: true
+    rf24batterymonitor: true
+
+-
+    id: table_plants
+    type: device
+    topic: /home/table_plants
+    name: Table Plants
+    webapp:
+        monitor_timeout: 86400 # 24 Hours
+        monitor_colorize: 
+            Humid: success
+            Wet: danger
+            Dry: info
+    sqlite: true
+    rf24mqtt: true
+    tweetthirsty: true
+    filter:
+        type: step
+        parameters:
+            950: 'Wet'
+            700: 'Humid'
+            300: 'Dry'
+
+-
+    id: table_plants/v
+    type: device
+    topic: /home/battery/table_plants
+    rf24mqtt: true
+    rf24batterymonitor: true
+
+-
+    id: 28:E1:EF:A4:2C:25
+    type: person
+    topic: /person/mannkind
+    name: Dustin
+    webapp:
+        monitor_colorize: 
+            Home: success
+            Not Home: danger
+            Unknown: warning
+        controllable: True
+        control_cycle_time: 10 # 10 seconds
+        control_values:
+            query:
+                humanize: Check
+                colorize: info
+                icon: user
+    sqlite: true
+    bt2mqtt: true
+    prowlalert: true
+
+-
+    id: 28:F1:3A:4C:93:60
+    type: person
+    topic: /person/mandyj33
+    name: Miranda
+    webapp:
+        monitor_colorize: 
+            Home: success
+            Not Home: danger
+            Unknown: warning
+        controllable: True
+        control_cycle_time: 10 # 10 seconds
+        control_values:
+            query:
+                humanize: Check 
+                colorize: info
+                icon: user
+    sqlite: true
+    bt2mqtt: true
+    prowlalert: true
+
+-
+    id: door_camera
+    type: camera
+    name: Front Door
+    username: apikey
+    password: 5feb3378bda9
+    base_url: 'http://ipcamera_98a5fd0134ae.local'
+    alarm_path: 'set_smarteye.cgi?user=%s&pwd=%s&motion_armed=%d&motion_sensitivity=3&ftp_enable=1&upload_interval=20'
+    control_path: 'decoder_control.cgi?user=%s&pwd=%s&onestep=1&command=%d'
+    snapshot_path: 'snapshot.cgi?user=%s&pwd=%s'
+    videostream_path: 'videostream.cgi?user=%s&pwd=%s&resolution=32&rate=0'
+    prowlalert: true
+    webapp: true
+
+-
+    id: ground_floor
+    type: temperature
+    topic: /home/temperature/ground_floor
+    name: Ground Floor
+    webapp:
+        monitor_timeout: 120 # 2 minutes
+    rf24mqtt: true
+    sqlite: 
+        history: 300 # Save every 5 minutes
+-
+    id: first_floor
+    type: temperature
+    topic: /home/temperature/first_floor
+    name: First Floor
+    webapp:
+        monitor_timeout: 120 # 2 minutes
+    rf24mqtt: true
+    sqlite: 
+        history: 300 # Save every 5 minutes
+
+-
+    id: second_floor
+    type: temperature
+    topic: /home/temperature/second_floor
+    name: Second Floor
+    webapp:
+        monitor_timeout: 120 # 2 minutes
+    rf24mqtt: true
+    sqlite: 
+        history: 300 # Save every 5 minutes
+
+-
+    id: garage 
+    type: temperature
+    topic: /home/temperature/garage
+    name: Garage
+    webapp:
+        monitor_timeout: 120 # 2 minutes
+    rf24mqtt: true
+    sqlite: 
+        history: 300 # Save every 5 minutes
