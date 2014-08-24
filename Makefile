@@ -1,10 +1,10 @@
 CC=g++
 CFLAGS=-Ofast -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -Wall -std=c++0x
 
-all: rf24node
+all: rf24node_mqtt
 
-rf24node: csiphash mosquitto rf24 rf24network
-	$(CC) $(CFLAGS) -lrf24-bcm -lrf24network -l:libmosquittopp.so RF24Node.cpp -o RF24Node
+rf24node_mqtt: csiphash mosquitto rf24 rf24network
+	$(CC) $(CFLAGS) -lrf24-bcm -lrf24network -l:libmosquittopp.so RF24Node_MQTT.cpp RF24Node.cpp StringSplit.cpp -o RF24Node_MQTT
 
 csiphash:
 	if [ ! -f csiphash.c ]; then \
@@ -33,9 +33,6 @@ rf24:
 rf24network: rf24
 	if [ ! -d RF24Network ]; then \
 		git clone -q https://github.com/tmrh20/RF24Network.git ntemp; \
-		cd ntemp; \
-		git checkout Development; \
-		cd .. ; \
 		mv ntemp/RPi/RF24Network ./ ; \
 		rm -rf ntemp; \
 	fi
@@ -44,5 +41,5 @@ rf24network: rf24
 	sudo $(MAKE) -C RF24Network install
 
 clean:
-	rm -f csiphash.c v1.2.3.zip
+	rm -f csiphash.c v1.2.3.zip *.o
 	sudo rm -rf oojah-mosquitto-1a6b97c6bcc4 RF24 RF24Network rtemp ntemp
