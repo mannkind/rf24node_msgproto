@@ -1,45 +1,61 @@
 CC=g++
 CFLAGS=-Ofast -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -Wall -std=c++0x
 
-all: rf24node_mqtt
+all: rf24node_msg
 
-rf24node_mqtt: csiphash mosquitto rf24 rf24network
-	$(CC) $(CFLAGS) -lrf24-bcm -lrf24network -l:libmosquittopp.so RF24Node_MQTT.cpp RF24Node.cpp StringSplit.cpp -o RF24Node_MQTT
+rf24node_msg: libs_dir csiphash rf24node
+	$(CC) $(CFLAGS) -lrf24-bcm -lrf24network -l:libmosquittopp.so RF24Node_MsgProto.cpp RF24NetworkWrapper.o MQTTWrapper.o RF24Node.o StringSplit.o -o RF24Node_MsgProto
+
+libs_dir:
+	mkdir -p libs
 
 csiphash:
+	cd libs; \
 	if [ ! -f csiphash.c ]; then \
 		wget -q https://raw.githubusercontent.com/majek/csiphash/master/csiphash.c; \
 	fi
 
 mosquitto:
+	cd libs; \
 	if [ ! -d oojah-mosquitto-1a6b97c6bcc4 ]; then \
 		wget -q https://bitbucket.org/oojah/mosquitto/get/v1.2.3.zip; \
 		unzip v1.2.3.zip; \
 		rm -f v1.2.3.zip; \
-	fi 
-	$(MAKE) -C oojah-mosquitto-1a6b97c6bcc4/lib
+	fi; \
+	$(MAKE) -C oojah-mosquitto-1a6b97c6bcc4/lib; \
 	sudo $(MAKE) -C oojah-mosquitto-1a6b97c6bcc4/lib install
 
 rf24:
+	cd libs; \
 	if [ ! -d RF24 ]; then \
 		git clone -q https://github.com/tmrh20/RF24.git rtemp; \
 		mv rtemp/RPi/RF24 ./ ; \
 		rm -rf rtemp; \
-	fi
-	cd RF24  
-	$(MAKE) -C RF24 librf24-bcm
+	fi; \
+	$(MAKE) -C RF24 librf24-bcm; \
 	sudo $(MAKE) -C RF24 install
 	
 rf24network: rf24
+	cd libs; \
 	if [ ! -d RF24Network ]; then \
 		git clone -q https://github.com/tmrh20/RF24Network.git ntemp; \
 		mv ntemp/RPi/RF24Network ./ ; \
 		rm -rf ntemp; \
-	fi
-	cd RF24Network
-	$(MAKE) -C RF24Network librf24network
+	fi; \
+	$(MAKE) -C RF24Network librf24network; \
 	sudo $(MAKE) -C RF24Network install
 
+rf24network_wrapper: rf24network
+	$(CC) $(CFLAGS) -c RF24NetworkWrapper.cpp
+
+mqtt_wrapper: mosquitto
+	$(CC) $(CFLAGS) -c MQTTWrapper.cpp
+
+stringsplit:
+	$(CC) $(CFLAGS) -c StringSplit.cpp
+
+rf24node: rf24network_wrapper mqtt_wrapper stringsplit
+	$(CC) $(CFLAGS) -c RF24Node.cpp
+
 clean:
-	rm -f csiphash.c v1.2.3.zip *.o
-	sudo rm -rf oojah-mosquitto-1a6b97c6bcc4 RF24 RF24Network rtemp ntemp
+	rm -rf libs *.o

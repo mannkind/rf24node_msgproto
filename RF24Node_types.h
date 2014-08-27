@@ -4,20 +4,6 @@
 #include <stdint.h>
 #include <ctime>
 #include <unordered_map>
-#include "RF24/RF24.h"
-
-// Configure an RF24Node
-struct RF24Node_Config {
-    std::string id;
-    std::string host;
-    int port;
-    rf24_pa_dbm_e palevel;
-    rf24_datarate_e datarate;
-    uint8_t channel;
-    uint16_t node_address;
-    char key[16];
-    bool debug;
-};
 
 typedef std::unordered_map<uint8_t /* message_type */, std::string /* payload */> typepayload_map;
 typedef std::unordered_map<uint16_t /* node_address */, typepayload_map> payload_map;

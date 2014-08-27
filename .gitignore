@@ -1,7 +1,4 @@
-RF24/
-RF24Network/
-csiphash.c
-oojah-mosquitto-1a6b97c6bcc4/
+libs
 *.o
-RF24Node_MQTT
+RF24Node_MsgProto
 start.sh
