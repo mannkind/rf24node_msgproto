@@ -11,7 +11,7 @@
 #include <vector>
 #include <ctime>
 
-#include "libs/csiphash.c"
+#include "csiphash.c"
 #include "StringSplit.h"
 #include "IMessageProtocol.h"
 #include "IRadioNetwork.h"

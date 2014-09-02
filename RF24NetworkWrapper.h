@@ -2,8 +2,8 @@
 
 #include "IRadioNetwork.h"
 
-#include "libs/RF24/RF24.h"
-#include "libs/RF24Network/RF24Network.h"
+#include "RF24/RF24.h"
+#include "RF24Network/RF24Network.h"
 
 class RF24NetworkWrapper: public IRadioNetwork {
     public:

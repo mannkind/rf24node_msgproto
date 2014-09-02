@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "libs/RF24Network/RF24Network.h"
+#include "RF24Network/RF24Network.h"
 #include "IMessageProtocol.h"
 #include "IRadioNetwork.h"
 #include "RF24Node_types.h"
