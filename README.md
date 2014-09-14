@@ -37,12 +37,13 @@
 
   * Crtl+O to save the file
   * Ctrl+X to exit
-  
+  * Load SPI module
 
-* Reboot the RPi
+          sudo modprobe spi-bcm2708
+    
 * Start RF24Node_MsgProto
 
-        ~/RF24Node_MsgProto/RF24Node_MsgProto
+        sudo ~/RF24Node_MsgProto/RF24Node_MsgProto
 
   Options include...
   
