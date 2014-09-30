@@ -1,13 +1,11 @@
-
 #include "MQTTWrapper.h"
 
-
-MQTTWrapper::MQTTWrapper(const char *id, const char *host, int port) : 
-    mosqpp::mosquittopp(id, false), host(host), port(port) {}
+MQTTWrapper::MQTTWrapper(std::string id, std::string host, int port) : 
+    mosqpp::mosquittopp(id.c_str(), false), host(host), port(port) {}
 
 void MQTTWrapper::begin(void) {
     mosqpp::lib_init();
-    this->connect(this->host, this->port, 60 /* keepalive */);
+    this->connect(this->host.c_str(), this->port, 60 /* keepalive */);
     this->subscribe(nullptr, "/ipc/rf24_node");
     this->subscribe(nullptr, "/sensornet/in/#");
 }

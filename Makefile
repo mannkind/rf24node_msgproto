@@ -9,7 +9,7 @@ OBJECTS=$(SOURCES:.cpp=.o)
 
 all: rf24node_msg
 
-rf24node_msg: csiphash mosquitto rf24 rf24network $(OBJECTS)
+rf24node_msg: csiphash mqtt_wrapper rf24 rf24network $(OBJECTS)
 	$(CC) $(CFLAGS) -lrf24-bcm -lrf24network -l:libmosquittopp.so RF24Node_MsgProto.cpp RF24NetworkWrapper.o MQTTWrapper.o RF24Node.o StringSplit.o -o RF24Node_MsgProto
 
 libs_dir:

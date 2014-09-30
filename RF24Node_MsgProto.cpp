@@ -13,9 +13,10 @@
  * Main Program
  */
 int main(int argc, char *argv[]) {
-    std::string id = "RF24Node";
-    std::string host = "localhost";
-    int port = 1883;
+    std::string mqtt_id = "RF24Node";
+    std::string mqtt_host = "localhost";
+    int mqtt_port = 1883;
+
     rf24_pa_dbm_e palevel = RF24_PA_MAX;
     rf24_datarate_e datarate = RF24_250KBPS;
     uint8_t channel = 0x4c;
@@ -24,6 +25,7 @@ int main(int argc, char *argv[]) {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
     };
+
     bool debug = false;
 
     static struct option long_options[] = {
@@ -33,13 +35,29 @@ int main(int argc, char *argv[]) {
       {"node", required_argument, nullptr, 'n'},
       {"key", required_argument, nullptr, 'k'},
       {"verbose", no_argument, nullptr, 'v'},
+      {"mqtt_id", required_argument, nullptr},
+      {"mqtt_host", required_argument, nullptr},
+      {"mqtt_port", required_argument, nullptr},
       {nullptr, 0, nullptr, 0}
     };
 
     std::vector<std::string> key_elements;
+    std::string option;
     int opt = 0, long_index = 0;
     while ((opt = getopt_long(argc, argv,"n:c:d:p:k:v", long_options, &long_index )) != -1) {
         switch (opt) {
+            case 0:
+                if (debug) printf ("option '%s' with value '%s'\n", long_options[long_index].name, optarg);
+                option = long_options[long_index].name;
+                
+                if (option == "mqtt_id") {
+                    mqtt_id = optarg;
+                } else if (option == "mqtt_host") {
+                    mqtt_host = optarg;
+                } else if (option == "mqtt_port") {
+                    mqtt_port = std::stoi(optarg, nullptr, 0);
+                }
+                break;
             case 'n' : 
                 if (debug) printf ("option -n with value '%s'\n", optarg);
                 node_address = std::stoul(optarg, nullptr, 0);
@@ -73,7 +91,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    MQTTWrapper msg_proto(id.c_str(), host.c_str(), port);
+    MQTTWrapper msg_proto(mqtt_id, mqtt_host, mqtt_port);
     RF24NetworkWrapper network(channel, node_address, palevel, datarate);
     RF24Node node(network, msg_proto, key);
     node.set_debug(debug);
