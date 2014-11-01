@@ -1,4 +1,4 @@
-# RF42Node_MsgProto ![Build Status](https://travis-ci.org/mannkind/RF24Node_MsgProto.svg)
+# RF42Node_MsgProto
 
 ## Quick Start
 
