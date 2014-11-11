@@ -35,9 +35,7 @@ mosquitto: libs_dir
 rf24: libs_dir
 	cd libs; \
 	if [ ! -d RF24 ]; then \
-		git clone -q https://github.com/tmrh20/RF24.git rtemp; \
-		mv rtemp/RPi/RF24 ./ ; \
-		rm -rf rtemp; \
+		git clone -q https://github.com/tmrh20/RF24.git RF24; \
 	fi; \
 	$(MAKE) -C RF24 librf24-bcm; \
 	sudo $(MAKE) -C RF24 install
