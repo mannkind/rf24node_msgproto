@@ -119,6 +119,12 @@ void RF24Node::handle_receive_challenge(RF24NetworkHeader& header) {
     pkt_challenge_t payload;
     this->network.read(header, &payload, sizeof(payload));
 
+    if (this->queued_payloads.find(header.from_node) == this->queued_payloads.end() ||
+        this->queued_payloads[header.from_node].find(payload.type) == this->queued_payloads[header.from_node].end()) {
+        if (this->debug) printf("No queued payload for for node 0%o of payload type %d.\n", header.from_node, payload.type);
+        return;
+    }
+    
     switch (payload.type) {
         case PKT_SWITCH:
             this->handle_send_switch(header.from_node, this->queued_payloads[header.from_node][payload.type], payload.challenge);
@@ -128,6 +134,7 @@ void RF24Node::handle_receive_challenge(RF24NetworkHeader& header) {
             break;
     }
 
+    this->queued_payloads[header.from_node].erase(payload.type);
 }
 
 /*
