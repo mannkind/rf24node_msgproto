@@ -28,10 +28,12 @@ class RF24Node {
         void handle_receive_power(RF24NetworkHeader& header);
         void handle_receive_switch(RF24NetworkHeader& header);
         void handle_receive_energy(RF24NetworkHeader& header);
+        void handle_receive_rgb(RF24NetworkHeader& header);
         void handle_receive_moisture(RF24NetworkHeader& header);
         void handle_receive_challenge(RF24NetworkHeader& header);
         void handle_receive_timesync(RF24NetworkHeader& header);
         void handle_send_switch(uint16_t node, std::string payload, time_t challenge);
+        void handle_send_rgb(uint16_t node, std::string payload, time_t challenge);
 
         void generate_siphash(time_t challenge, unsigned char (&hash)[8]);
         std::string generate_msg_proto_subject(RF24NetworkHeader& header);
