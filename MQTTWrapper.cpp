@@ -6,7 +6,6 @@ MQTTWrapper::MQTTWrapper(std::string id, std::string host, int port) :
 void MQTTWrapper::begin(void) {
     mosqpp::lib_init();
     this->connect(this->host.c_str(), this->port, 60 /* keepalive */);
-    this->subscribe(nullptr, "/ipc/rf24_node");
     this->subscribe(nullptr, "/sensornet/in/#");
 }
 
@@ -24,6 +23,11 @@ void MQTTWrapper::send_message(std::string subject, std::string body) {
 
 void MQTTWrapper::set_on_message_callback(on_msg_cb cb) {
     this->cb = cb;
+}
+
+void MQTTWrapper::on_disconnect(int mid) {
+    this->end();
+    this->begin();
 }
 
 void MQTTWrapper::on_message(const struct mosquitto_message *message) {

@@ -18,4 +18,5 @@ class MQTTWrapper: public IMessageProtocol, public mosqpp::mosquittopp {
         int port;
         on_msg_cb cb;
         void on_message(const struct mosquitto_message *message);
+        void on_disconnect(int mid);
 };
