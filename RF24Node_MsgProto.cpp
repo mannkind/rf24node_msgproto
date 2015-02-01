@@ -1,5 +1,6 @@
 #include <getopt.h>
 #include <unordered_map>
+#include <algorithm>
 #include <vector>
 #include <string>
 
@@ -13,20 +14,20 @@
  * Main Program
  */
 int main(int argc, char *argv[]) {
-    std::string mqtt_id = "RF24Node";
-    std::string mqtt_host = "localhost";
-    int mqtt_port = 1883;
+    auto mqtt_id = "RF24Node";
+    auto mqtt_host = "localhost";
+    auto mqtt_port = 1883;
 
-    rf24_pa_dbm_e palevel = RF24_PA_MAX;
-    rf24_datarate_e datarate = RF24_250KBPS;
+    auto palevel = RF24_PA_MAX;
+    auto datarate = RF24_250KBPS;
     uint8_t channel = 0x4c;
     uint16_t node_address = 00;
-    char key[16] = { 
+    auto key = std::vector<char>({
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
-    };
+    });
 
-    bool debug = false;
+    auto debug = false;
 
     static struct option long_options[] = {
       {"datarate", required_argument, nullptr, 'd'},
@@ -41,9 +42,9 @@ int main(int argc, char *argv[]) {
       {nullptr, 0, nullptr, 0}
     };
 
-    std::vector<std::string> key_elements;
-    std::string option;
-    int opt = 0, long_index = 0;
+    auto key_elements = std::vector<std::string>();
+    auto option = std::string();
+    auto opt = 0, long_index = 0;
     while ((opt = getopt_long(argc, argv,"n:c:d:p:k:v", long_options, &long_index )) != -1) {
         switch (opt) {
             case 0:
@@ -77,12 +78,12 @@ int main(int argc, char *argv[]) {
             case 'k':
                 if (debug) printf ("option -k with value '%s'\n", optarg);
                 key_elements = split(optarg, ' ');
-
-                for (unsigned int i = 0; i < key_elements.size(); i++) {
-                    key[i] = std::stoul(key_elements[i].c_str(), nullptr, 0);
-                }
+                key = std::vector<char>();
+                std::transform(key_elements.begin(), key_elements.end(), std::back_inserter(key),
+                           [](const std::string& str) { return std::stoul(str.c_str(), nullptr, 0);
+ });
                 break;
-            case 'v':
+            case 'v':           
                 if (debug) printf ("option -v\n");
                 debug = true;
                 break;
@@ -91,9 +92,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    MQTTWrapper msg_proto(mqtt_id, mqtt_host, mqtt_port);
-    RF24NetworkWrapper network(channel, node_address, palevel, datarate);
-    RF24Node node(network, msg_proto, key);
+    auto msg_proto = MQTTWrapper(mqtt_id, mqtt_host, mqtt_port);
+    auto network = RF24NetworkWrapper(channel, node_address, palevel, datarate);
+    auto node = RF24Node(network, msg_proto, key);
     node.set_debug(debug);
 
     node.begin();

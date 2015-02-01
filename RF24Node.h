@@ -18,9 +18,9 @@ class RF24Node {
         IRadioNetwork& network;
 
         bool debug;
-        const char* key;
+        std::vector<char> key;
 
-        bool write(RF24NetworkHeader& header,const void* message, size_t len);
+        bool write(RF24NetworkHeader& header, const void* message, size_t len);
 
         void handle_receive_message(std::string subject, std::string body);
         void handle_receive_temp(RF24NetworkHeader& header);
@@ -35,12 +35,12 @@ class RF24Node {
         void handle_send_switch(uint16_t node, std::string payload, time_t challenge);
         void handle_send_rgb(uint16_t node, std::string payload, time_t challenge);
 
-        void generate_siphash(time_t challenge, unsigned char (&hash)[8]);
+        std::vector<uint8_t> generate_siphash(time_t challenge);
         std::string generate_msg_proto_subject(RF24NetworkHeader& header);
 
 
     public:
-        RF24Node(IRadioNetwork& _network, IMessageProtocol& _msg_proto, char _key[16]);
+        RF24Node(IRadioNetwork& _network, IMessageProtocol& _msg_proto, std::vector<char>);
 
         void begin(void);
         void end(void);

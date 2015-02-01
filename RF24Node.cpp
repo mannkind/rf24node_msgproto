@@ -17,7 +17,7 @@
 #include "IRadioNetwork.h"
 #include "RF24Node.h"
 
-RF24Node::RF24Node(IRadioNetwork& _network, IMessageProtocol& _msg_proto, char _key[16]) : 
+RF24Node::RF24Node(IRadioNetwork& _network, IMessageProtocol& _msg_proto, std::vector<char> _key) : 
   msg_proto(_msg_proto), network(_network), key(_key) { }
 
 void RF24Node::begin(void) {
@@ -72,11 +72,11 @@ void RF24Node::loop(void) {
     this->msg_proto.loop();
 }
 
-bool RF24Node::write(RF24NetworkHeader& header,const void* message, size_t len) {
-    const uint8_t max_retries = 1;
-    bool ok = false;
+bool RF24Node::write(RF24NetworkHeader& header, const void* message, size_t len) {
+    const auto max_retries = 1;
+    auto ok = false;
 
-    uint8_t retries = max_retries;
+    auto retries = max_retries;
     while (!ok && retries-- > 0) {
         ok = this->network.write(header, message, len);
     }
@@ -89,13 +89,13 @@ bool RF24Node::write(RF24NetworkHeader& header,const void* message, size_t len) 
 void RF24Node::handle_receive_message(std::string subject, std::string body) {
     if (this->debug) printf("Received '%s' via topic '%s' from MQTT\n", subject.c_str(), body.c_str());
 
-    std::vector<std::string> elements = split(subject, '/');
+    auto elements = split(subject, '/');
     uint16_t to_node = std::stoul("0" + elements[3], nullptr, 0);
     uint8_t type_command = std::stoi(elements[4], nullptr);
     uint8_t type = type_command % 64;
 
+    // Asking for sensor data is unsupported 
     if (type_command < 64) {
-        // Asking for sensor data is unsupported 
         return;
     }
         
@@ -103,8 +103,7 @@ void RF24Node::handle_receive_message(std::string subject, std::string body) {
 
     if (this->debug) printf("Queuing: '%s' for node 0%o, payload type %d\n", body.c_str(), to_node, type);
 
-    pkt_challenge_t payload;
-    payload.type = type;
+    auto payload = pkt_challenge_t { 0, type };
     RF24NetworkHeader header(to_node, PKT_CHALLENGE);
     this->write(header, &payload, sizeof(payload));
 }
@@ -116,7 +115,7 @@ void RF24Node::handle_receive_challenge(RF24NetworkHeader& header) {
     if (this->debug) printf("Handling challenge request for node 0%o.\n", header.from_node);
 
     // Read the challenge request response
-    pkt_challenge_t payload;
+    auto payload = pkt_challenge_t();
     this->network.read(header, &payload, sizeof(payload));
 
     if (this->queued_payloads.find(header.from_node) == this->queued_payloads.end() ||
@@ -147,25 +146,25 @@ void RF24Node::handle_receive_timesync(RF24NetworkHeader& header) {
     this->network.read(header, nullptr, 0);
 
     // Set the current timestamp 
-    pkt_time_t t = { time(0) };
+    auto payload = pkt_time_t { time(0) };
 
     // Send the packet (timestamp) to the desired node
     RF24NetworkHeader new_header(header.from_node, PKT_TIME);
-    this->write(new_header, &t, sizeof(t));
+    this->write(new_header, &payload, sizeof(payload));
 }
 
 /*
  * Publish temps on MQTT 
  */
 void RF24Node::handle_receive_temp(RF24NetworkHeader& header) {
-    pkt_temp_t payload;
+    auto payload = pkt_temp_t();
     this->network.read(header, &payload, sizeof(payload));
 
     std::stringstream s_value;
     s_value << payload.id << "|" << (double)(payload.temp / 10.0);
 
-    std::string topic = this->generate_msg_proto_subject(header);
-    std::string value = s_value.str();
+    auto topic = this->generate_msg_proto_subject(header);
+    auto value = s_value.str();
 
     if (this->debug) printf("Republishing Temp: %s:%s\n", topic.c_str(), value.c_str());
     this->msg_proto.send_message(topic, value);
@@ -175,14 +174,14 @@ void RF24Node::handle_receive_temp(RF24NetworkHeader& header) {
  * Publish humidity on MQTT 
  */
 void RF24Node::handle_receive_humidity(RF24NetworkHeader& header) {
-    pkt_humid_t payload;
+    auto payload = pkt_humid_t();
     this->network.read(header, &payload, sizeof(payload));
 
     std::stringstream s_value;
     s_value << payload.id << "|" << ((double)(payload.humidity / 10.0));
 
-    std::string topic = this->generate_msg_proto_subject(header);
-    std::string value = s_value.str();
+    auto topic = this->generate_msg_proto_subject(header);
+    auto value = s_value.str();
 
     if (this->debug) printf("Republishing Humidity: %s:%s\n", topic.c_str(), value.c_str());
     this->msg_proto.send_message(topic, value);
@@ -192,14 +191,14 @@ void RF24Node::handle_receive_humidity(RF24NetworkHeader& header) {
  * Publish power on MQTT 
  */
 void RF24Node::handle_receive_power(RF24NetworkHeader& header) {
-    pkt_power_t payload;
+    auto payload = pkt_power_t();
     this->network.read(header, &payload, sizeof(payload));
 
     std::stringstream s_value;
     s_value << payload.battery << "|" << payload.solar << "|" << payload.vcc << "|" << payload.vs;
 
-    std::string topic = this->generate_msg_proto_subject(header);
-    std::string value = s_value.str();
+    auto topic = this->generate_msg_proto_subject(header);
+    auto value = s_value.str();
 
     if (this->debug) printf("Republishing Power: %s:%s\n", topic.c_str(), value.c_str());
     this->msg_proto.send_message(topic, value);
@@ -209,14 +208,14 @@ void RF24Node::handle_receive_power(RF24NetworkHeader& header) {
  * Publish moisture on MQTT 
  */
 void RF24Node::handle_receive_moisture(RF24NetworkHeader& header) {
-    pkt_moisture_t payload;
+    auto payload = pkt_moisture_t();
     this->network.read(header, &payload, sizeof(payload));
 
     std::stringstream s_value;
     s_value << payload.id << "|" << payload.moisture;
 
-    std::string topic = this->generate_msg_proto_subject(header);
-    std::string value = s_value.str();
+    auto topic = this->generate_msg_proto_subject(header);
+    auto value = s_value.str();
 
     if (this->debug) printf("Republishing Moisture: %s:%s\n", topic.c_str(), value.c_str());
     this->msg_proto.send_message(topic, value);
@@ -226,14 +225,14 @@ void RF24Node::handle_receive_moisture(RF24NetworkHeader& header) {
  * Publish energy on MQTT 
  */
 void RF24Node::handle_receive_energy(RF24NetworkHeader& header) {
-    pkt_energy_t payload;
+    auto payload = pkt_energy_t();
     this->network.read(header, &payload, sizeof(payload));
 
     std::stringstream s_value;
     s_value << payload.id << "|" << payload.energy;
 
-    std::string topic = this->generate_msg_proto_subject(header);
-    std::string value = s_value.str();
+    auto topic = this->generate_msg_proto_subject(header);
+    auto value = s_value.str();
 
     if (this->debug) printf("Republishing Energy: %s:%s\n", topic.c_str(), value.c_str());
     this->msg_proto.send_message(topic, value);
@@ -243,15 +242,15 @@ void RF24Node::handle_receive_energy(RF24NetworkHeader& header) {
  * Publish rgb on MQTT 
  */
 void RF24Node::handle_receive_rgb(RF24NetworkHeader& header) {
-    pkt_rgb_t payload;
+    auto payload = pkt_rgb_t();
     this->network.read(header, &payload, sizeof(payload));
 
     std::stringstream s_value;
     s_value << payload.id << "|" << payload.rgb[0] << "|" << payload.rgb[1] 
         << "|" << payload.rgb[2] << "|" << payload.timer;
 
-    std::string topic = this->generate_msg_proto_subject(header);
-    std::string value = s_value.str();
+    auto topic = this->generate_msg_proto_subject(header);
+    auto value = s_value.str();
 
     if (this->debug) printf("Republishing RGB: %s:%s\n", topic.c_str(), value.c_str());
     this->msg_proto.send_message(topic, value);
@@ -261,29 +260,30 @@ void RF24Node::handle_receive_rgb(RF24NetworkHeader& header) {
  * Publish switch on MQTT 
  */
 void RF24Node::handle_receive_switch(RF24NetworkHeader& header) {
-    pkt_switch_t payload;
+    auto payload = pkt_switch_t();
     this->network.read(header, &payload, sizeof(payload));
 
     std::stringstream s_value;
     s_value << payload.id << "|" << payload.state << "|" << payload.timer;
 
-    std::string topic = this->generate_msg_proto_subject(header);
-    std::string value = s_value.str();
+    auto topic = this->generate_msg_proto_subject(header);
+    auto value = s_value.str();
 
     if (this->debug) printf("Republishing Switch: %s:%s\n", topic.c_str(), value.c_str());
     this->msg_proto.send_message(topic, value);
 }
 
 void RF24Node::handle_send_rgb(uint16_t node, std::string queued_payload, time_t challenge) {
-    std::vector<std::string> elements = split(queued_payload.c_str(), '|');
+    auto siphash = this->generate_siphash(challenge);
+    auto elements = split(queued_payload.c_str(), '|');
 
-    pkt_rgb_t payload;
+    auto payload = pkt_rgb_t();
     payload.id = std::stoi(elements[0], nullptr, 0);
-    payload.rgb[0]= std::stoi(elements[1], nullptr, 0);
-    payload.rgb[1]= std::stoi(elements[2], nullptr, 0);
-    payload.rgb[2]= std::stoi(elements[3], nullptr, 0);
+    payload.rgb[0] = std::stoi(elements[1], nullptr, 0);
+    payload.rgb[1] = std::stoi(elements[2], nullptr, 0);
+    payload.rgb[2] = std::stoi(elements[3], nullptr, 0);
     payload.timer = std::stoi(elements[4], nullptr, 0);
-    this->generate_siphash(challenge, payload.hash);
+    std::copy(siphash.begin(), siphash.end(), payload.hash);
 
     if (this->debug) {
         printf("Republishing RGB Command: 0%o:%s\n", node, queued_payload.c_str());
@@ -299,13 +299,15 @@ void RF24Node::handle_send_rgb(uint16_t node, std::string queued_payload, time_t
 }
 
 void RF24Node::handle_send_switch(uint16_t node, std::string queued_payload, time_t challenge) {
-    std::vector<std::string> elements = split(queued_payload.c_str(), '|');
+    auto siphash = this->generate_siphash(challenge);
+    auto elements = split(queued_payload.c_str(), '|');
 
-    pkt_switch_t payload;
+    auto payload = pkt_switch_t();
     payload.id = std::stoi(elements[0], nullptr, 0);
     payload.state = std::stoi(elements[1], nullptr, 0);
     payload.timer = std::stoi(elements[2], nullptr, 0);
-    this->generate_siphash(challenge, payload.hash);
+    std::copy(siphash.begin(), siphash.end(), payload.hash);
+
 
     if (this->debug) {
         printf("Republishing Switch Command: 0%o:%s\n", node, queued_payload.c_str());
@@ -321,7 +323,7 @@ void RF24Node::handle_send_switch(uint16_t node, std::string queued_payload, tim
 }
 
 std::string RF24Node::generate_msg_proto_subject(RF24NetworkHeader& header) {
-    char from_node_oct[5];
+    char from_node_oct[] = { 0, 0, 0, 0, 0 };
     sprintf(from_node_oct, "%o", header.from_node);
 
     std::stringstream s_topic;
@@ -330,18 +332,21 @@ std::string RF24Node::generate_msg_proto_subject(RF24NetworkHeader& header) {
     return s_topic.str();
 }
 
-void RF24Node::generate_siphash(time_t challenge, unsigned char (&hash)[8]) {
+std::vector<uint8_t> RF24Node::generate_siphash(time_t challenge) {
     // Convert the challenge into a byte array
-    char challenge_array[4];
-    for(int i = 0; i <= 3; i++) {
-        challenge_array[i] = (challenge >> (8 * i) ) & 0xFF;
+    auto data = std::vector<char>({ 0, 1, 2, 3 });
+    for (auto &d : data) {
+        d = (challenge >> (8 * d) ) & 0xFF;
     }
 
     // Generate the hash
-    uint64_t siphash = siphash24(challenge_array, sizeof(challenge_array), this->key);
+    auto siphash = siphash24(&data[0], data.size(), &this->key[0]);
 
     // Convert the siphash into a byte array
-    for(unsigned int i = 0; i < sizeof(hash); i++) {
-        hash[i] = (siphash >> (8 * i) ) & 0xFF;
+    auto hash = std::vector<uint8_t>({ 0, 1, 2, 3, 4, 5, 6, 7 });
+    for (auto &h : hash) {
+        h = (siphash >> (8 * h)) & 0xFF;
     }
+
+    return hash;
 }
