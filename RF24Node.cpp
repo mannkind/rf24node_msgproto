@@ -34,7 +34,7 @@ void RF24Node::end(void) {
 void RF24Node::loop(void) {
     this->network.update();
     while (this->network.available()) {
-        RF24NetworkHeader header;
+        auto header = RF24NetworkHeader();
         this->network.peek(header);
 
         switch (header.type) {
