@@ -16,27 +16,16 @@
           cd RF24Node_MsgProto
           make
 
-* Enable SPI by removing the broadcom chipset from the blacklist
-  * Edit the raspi-blacklist.conf file
+* Enable SPI via raspi-config
 
-          sudo nano /etc/modprobe.d/raspi-blacklist.conf
+          sudo raspi-config
 
-    It should contain the following lines
+  * Select: 8 - Advanced Options
+  * Select: A6 - SPI
+    * Answer: Yes
+    * Answer: Yes
+  * Select: Finish
 
-         # blacklist spi and i2c by default (many users don't need them)
-
-         blacklist spi-bcm2708
-         blacklist i2c-bcm2708
-    
-    Add the hashmark in front of `spi-bcm2708` so that it looks like `#blacklist spi-bcm2708`
-    
-         # blacklist spi and i2c by default (many users don't need them)
-
-         #blacklist spi-bcm2708
-         blacklist i2c-bcm2708
-
-  * Crtl+O to save the file
-  * Ctrl+X to exit
   * Load SPI module
 
           sudo modprobe spi-bcm2708
