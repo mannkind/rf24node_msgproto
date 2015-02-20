@@ -6,9 +6,9 @@
 
           sudo apt-get install mosquitto mosquitto-clients
 
-* Install `libssl-dev` it's needed for the MQTT client
+* Install `libssl-dev` and `libc-ares-dev` as needed for the MQTT client
 
-          sudo apt-get install libssl-dev
+          sudo apt-get install libssl-dev libc-ares-dev
 
 * Clone this repository and compile
 

@@ -24,13 +24,13 @@ csiphash: libs_dir
 
 mosquitto: libs_dir
 	cd libs; \
-	if [ ! -d oojah-mosquitto-1a6b97c6bcc4 ]; then \
-		wget -q https://bitbucket.org/oojah/mosquitto/get/v1.2.3.zip; \
-		unzip v1.2.3.zip; \
-		rm -f v1.2.3.zip; \
+	if [ ! -d mosquitto-1.3.5 ]; then \
+		wget -q http://mosquitto.org/files/source/mosquitto-1.3.5.tar.gz; \
+		tar zxvf mosquitto-1.3.5.tar.gz; \
+		rm -f mosquitto-1.3.5.tar.gz; \
 	fi; \
-	$(MAKE) -C oojah-mosquitto-1a6b97c6bcc4/lib; \
-	sudo $(MAKE) -C oojah-mosquitto-1a6b97c6bcc4/lib install
+	$(MAKE) -C mosquitto-1.3.5/lib; \
+	sudo $(MAKE) -C mosquitto-1.3.5/lib install
 
 rf24: libs_dir
 	cd libs; \
