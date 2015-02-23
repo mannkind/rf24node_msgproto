@@ -274,7 +274,7 @@ void RF24Node::handle_receive_switch(RF24NetworkHeader& header) {
 }
 
 void RF24Node::handle_send_rgb(uint16_t node, std::string queued_payload, time_t challenge) {
-    auto siphash = this->generate_siphash(challenge);
+    auto siphash = this->generate_siphash(node, challenge);
     auto elements = split(queued_payload.c_str(), '|');
 
     auto payload = pkt_rgb_t();
@@ -299,7 +299,7 @@ void RF24Node::handle_send_rgb(uint16_t node, std::string queued_payload, time_t
 }
 
 void RF24Node::handle_send_switch(uint16_t node, std::string queued_payload, time_t challenge) {
-    auto siphash = this->generate_siphash(challenge);
+    auto siphash = this->generate_siphash(node, challenge);
     auto elements = split(queued_payload.c_str(), '|');
 
     auto payload = pkt_switch_t();
@@ -332,12 +332,16 @@ std::string RF24Node::generate_msg_proto_subject(RF24NetworkHeader& header) {
     return s_topic.str();
 }
 
-std::vector<uint8_t> RF24Node::generate_siphash(time_t challenge) {
+std::vector<uint8_t> RF24Node::generate_siphash(uint16_t node, time_t challenge) {
     // Convert the challenge into a byte array
     auto data = std::vector<char>({ 0, 1, 2, 3 });
     for (auto &d : data) {
         d = (challenge >> (8 * d) ) & 0xFF;
     }
+
+    // Add in the node adrress as a byte array
+    data.push_back((node >> (8 * 0)) & 0xFF);
+    data.push_back((node >> (8 * 1)) & 0xFF);
 
     // Generate the hash
     auto siphash = siphash24(&data[0], data.size(), &this->key[0]);

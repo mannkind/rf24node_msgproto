@@ -35,7 +35,7 @@ class RF24Node {
         void handle_send_switch(uint16_t node, std::string payload, time_t challenge);
         void handle_send_rgb(uint16_t node, std::string payload, time_t challenge);
 
-        std::vector<uint8_t> generate_siphash(time_t challenge);
+        std::vector<uint8_t> generate_siphash(uint16_t node, time_t challenge);
         std::string generate_msg_proto_subject(RF24NetworkHeader& header);
 
 
