@@ -5,6 +5,7 @@ MQTTWrapper::MQTTWrapper(std::string id, std::string host, int port) :
 
 void MQTTWrapper::begin(void) {
     mosqpp::lib_init();
+    printf("Connecting to MQTT\n");
     this->connect(this->host.c_str(), this->port, 60 /* keepalive */);
     this->subscribe(nullptr, "/sensornet/in/#");
 }
@@ -26,7 +27,9 @@ void MQTTWrapper::set_on_message_callback(on_msg_cb cb) {
 }
 
 void MQTTWrapper::on_disconnect(int mid) {
+    printf("Disconnecting from MQTT\n");
     this->end();
+    sleep(15);
     this->begin();
 }
 

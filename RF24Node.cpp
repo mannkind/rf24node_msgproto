@@ -18,7 +18,7 @@
 #include "RF24Node.h"
 
 RF24Node::RF24Node(IRadioNetwork& _network, IMessageProtocol& _msg_proto, std::vector<char> _key) : 
-  msg_proto(_msg_proto), network(_network), key(_key) { }
+  msg_proto(_msg_proto), network(_network), key(_key), topic_separator('/') { }
 
 void RF24Node::begin(void) {
     this->msg_proto.set_on_message_callback([this](std::string subject, std::string body) { this->handle_receive_message(subject, body); });
@@ -327,7 +327,14 @@ std::string RF24Node::generate_msg_proto_subject(RF24NetworkHeader& header) {
     sprintf(from_node_oct, "%o", header.from_node);
 
     std::stringstream s_topic;
-    s_topic << "/sensornet/out/" << from_node_oct << "/" << std::to_string(header.type);
+    s_topic << this->topic_separator
+            << "sensornet" 
+            << this->topic_separator
+            << "out" 
+            << this->topic_separator
+            << from_node_oct 
+            << this->topic_separator
+            << std::to_string(header.type);
 
     return s_topic.str();
 }

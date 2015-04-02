@@ -6,6 +6,7 @@
 
 #include "StringSplit.h"
 #include "MQTTWrapper.h"
+#include "AMQPWrapper.h"
 #include "RF24NetworkWrapper.h"
 #include "RF24Node_types.h"
 #include "RF24Node.h"
@@ -14,9 +15,14 @@
  * Main Program
  */
 int main(int argc, char *argv[]) {
+    auto msgproto_type = "MQTT";
+    auto msgproto_sep = '/';
+
     auto mqtt_id = "RF24Node";
     auto mqtt_host = "localhost";
     auto mqtt_port = 1883;
+
+    auto amqp_connstr = "localhost";
 
     auto palevel = RF24_PA_MAX;
     auto datarate = RF24_250KBPS;
@@ -36,9 +42,11 @@ int main(int argc, char *argv[]) {
       {"node", required_argument, nullptr, 'n'},
       {"key", required_argument, nullptr, 'k'},
       {"verbose", no_argument, nullptr, 'v'},
+      {"msgproto_type", required_argument, nullptr},
       {"mqtt_id", required_argument, nullptr},
       {"mqtt_host", required_argument, nullptr},
       {"mqtt_port", required_argument, nullptr},
+      {"amqp_connstr", required_argument, nullptr},
       {nullptr, 0, nullptr, 0}
     };
 
@@ -57,6 +65,10 @@ int main(int argc, char *argv[]) {
                     mqtt_host = optarg;
                 } else if (option == "mqtt_port") {
                     mqtt_port = std::stoi(optarg, nullptr, 0);
+                } else if (option == "amqp_connstr") {
+                    amqp_connstr = optarg;
+                } else if (option == "msgproto_type") {
+                    msgproto_type = optarg;
                 }
                 break;
             case 'n' : 
@@ -92,10 +104,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    auto msg_proto = MQTTWrapper(mqtt_id, mqtt_host, mqtt_port);
     auto network = RF24NetworkWrapper(channel, node_address, palevel, datarate);
-    auto node = RF24Node(network, msg_proto, key);
+    std::unique_ptr<IMessageProtocol> msgproto;
+    if (strcmp(msgproto_type, "AMQP") == 0) {
+        msgproto = std::unique_ptr<IMessageProtocol>(new AMQPWrapper(amqp_connstr));
+        msgproto_sep = '.';
+    } else {
+        msgproto = std::unique_ptr<IMessageProtocol>(new MQTTWrapper(mqtt_id, mqtt_host, mqtt_port));
+    }
+    auto node = RF24Node(network, *msgproto, key);
     node.set_debug(debug);
+    node.set_topic_separator(msgproto_sep);
 
     node.begin();
     while(true) {

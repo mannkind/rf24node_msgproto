@@ -19,6 +19,7 @@ class RF24Node {
 
         bool debug;
         std::vector<char> key;
+        char topic_separator;
 
         bool write(RF24NetworkHeader& header, const void* message, size_t len);
 
@@ -48,5 +49,9 @@ class RF24Node {
 
         void set_debug(bool _debug) {
             this->debug = _debug;
+        }
+
+        void set_topic_separator(char s) {
+            this->topic_separator = s;
         }
 };
