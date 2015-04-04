@@ -4,9 +4,11 @@
 
 * Install a MQTT broker - `mosquitto` or `rabbitmq-server`
   * Mosquitto
+ 
           sudo apt-get install mosquitto mosquitto-clients
 
   * RabbitMQ + MQTT Plugin
+ 
           sudo echo "deb http://www.rabbitmq.com/debian/ testing main" >> /etc/apt/sources.list          
           wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
           sudo apt-key add rabbitmq-signing-key-public.asc
