@@ -33,6 +33,7 @@ struct pkt_power_t {
   bool solar; /* Does this node have a solar panel? */
   uint16_t vcc; /* Supply voltage */
   uint16_t vs; /* Voltage supplied by solar panel. 0 if not panel. */
+  uint16_t id; /* ID for the battery, unique to this node */
 };
 
 /* Packet for an on-off switch attached to this node. */

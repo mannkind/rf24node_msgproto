@@ -195,7 +195,7 @@ void RF24Node::handle_receive_power(RF24NetworkHeader& header) {
     this->network.read(header, &payload, sizeof(payload));
 
     std::stringstream s_value;
-    s_value << payload.battery << "|" << payload.solar << "|" << payload.vcc << "|" << payload.vs;
+    s_value << payload.battery << "|" << payload.solar << "|" << payload.vcc << "|" << payload.vs << "|" << payload.id;
 
     auto topic = this->generate_msg_proto_subject(header);
     auto value = s_value.str();
