@@ -1,0 +1,18 @@
+[submodule "libs/RF24"]
+	path = libs/RF24
+	url = https://github.com/tmrh20/RF24.git
+[submodule "libs/RF24Network"]
+	path = libs/RF24Network
+	url = https://github.com/tmrh20/RF24Network.git
+[submodule "libs/csiphash"]
+	path = libs/csiphash
+	url = https://raw.githubusercontent.com/majek/csiphash
+[submodule "libs/mosquitto"]
+	path = libs/mosquitto
+	url = http://git.eclipse.org/gitroot/mosquitto/org.eclipse.mosquitto.git
+[submodule "libs/rabbitmq-c"]
+	path = libs/rabbitmq-c
+	url = https://github.com/alanxz/rabbitmq-c.git
+[submodule "libs/amqpcpp"]
+	path = libs/amqpcpp
+	url = https://github.com/akalend/amqpcpp.git

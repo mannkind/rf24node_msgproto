@@ -1,5 +1,3 @@
-libs
-csiphash.c
 *.o
 *.a
 RF24Node_MsgProto

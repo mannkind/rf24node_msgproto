@@ -26,11 +26,8 @@
           git clone https://github.com/mannkind/RF24Node_MsgProto.git
           cd RF24Node_MsgProto
   
-  * Compile/install librf24, librf24network, libmosquitto, and librabbitmq yourself or ...
+* Compile RF24Node\_MsgProto
 
-          make libdeps
-  
-  * Compile RF24Node_MsgProto
           make
 
 * Enable SPI via raspi-config
@@ -47,7 +44,7 @@
 
           sudo modprobe spi-bcm2708
     
-* Start RF24Node_MsgProto
+* Start RF24Node\_MsgProto
 
         sudo ~/RF24Node_MsgProto/RF24Node_MsgProto
 
