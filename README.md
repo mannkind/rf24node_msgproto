@@ -25,6 +25,7 @@
 
           git clone https://github.com/mannkind/RF24Node_MsgProto.git
           cd RF24Node_MsgProto
+          git submodule update --init --recursive
   
 * Compile RF24Node\_MsgProto
 
