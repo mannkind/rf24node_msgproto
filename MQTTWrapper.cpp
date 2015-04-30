@@ -35,6 +35,7 @@ void MQTTWrapper::on_disconnect(int mid) {
 
 void MQTTWrapper::on_message(const struct mosquitto_message *message) {
     auto subject = std::string(message->topic);
-    auto body = std::string(reinterpret_cast<char *>(message->payload));
+    auto body = message->payloadlen > 0 ? 
+        std::string(reinterpret_cast<char *>(message->payload)) : std::string("");
     this->cb(subject, body);
 }
