@@ -89,7 +89,7 @@ bool RF24Node::write(RF24NetworkHeader& header, const void* message, size_t len)
 void RF24Node::handle_receive_message(std::string subject, std::string body) {
     if (this->debug) printf("Received '%s' via topic '%s' from MQTT\n", subject.c_str(), body.c_str());
 
-    auto elements = split(subject, '/');
+    auto elements = split(subject, this->topic_separator);
     uint16_t to_node = std::stoul("0" + elements[3], nullptr, 0);
     uint8_t type_command = std::stoi(elements[4], nullptr);
     uint8_t type = type_command % 64;
