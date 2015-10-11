@@ -1,4 +1,5 @@
 #include "MQTTWrapper.h"
+#include <unistd.h>
 
 MQTTWrapper::MQTTWrapper(std::string id, std::string host, int port) : 
     mosqpp::mosquittopp(id.c_str(), false), host(host), port(port) {}
