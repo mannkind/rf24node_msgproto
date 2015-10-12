@@ -22,6 +22,11 @@ int main(int argc, char *argv[]) {
     auto mqtt_host = "localhost";
     auto mqtt_port = 1883;
 
+    auto tls_ca_file = "";
+    auto tls_cert_file = "";
+    auto tls_key_file = "";
+    auto tls_insecure_mode = false;
+
     auto amqp_connstr = "localhost";
 
     auto palevel = RF24_PA_MAX;
@@ -46,6 +51,10 @@ int main(int argc, char *argv[]) {
       {"mqtt_id", required_argument, nullptr},
       {"mqtt_host", required_argument, nullptr},
       {"mqtt_port", required_argument, nullptr},
+      {"tls_ca_file", required_argument, nullptr},
+      {"tls_cert_file", required_argument, nullptr},
+      {"tls_key_file", required_argument, nullptr},
+      {"tls_insecure_mode", no_argument, nullptr},
       {"amqp_connstr", required_argument, nullptr},
       {nullptr, 0, nullptr, 0}
     };
@@ -69,6 +78,15 @@ int main(int argc, char *argv[]) {
                     amqp_connstr = optarg;
                 } else if (option == "msgproto_type") {
                     msgproto_type = optarg;
+                } else if (option == "tls_ca_file") {
+                    tls_ca_file = optarg;
+                    printf("Found your tls ca file: %s\n", tls_ca_file);
+                } else if (option == "tls_cert_file") {
+                    tls_cert_file = optarg;
+                } else if (option == "tls_key_file") {
+                    tls_key_file = optarg;
+                } else if (option == "tls_insecure_mode") {
+                    tls_insecure_mode = true;
                 }
                 break;
             case 'n' : 
@@ -110,7 +128,7 @@ int main(int argc, char *argv[]) {
         msgproto = std::unique_ptr<IMessageProtocol>(new AMQPWrapper(amqp_connstr));
         msgproto_sep = '.';
     } else {
-        msgproto = std::unique_ptr<IMessageProtocol>(new MQTTWrapper(mqtt_id, mqtt_host, mqtt_port));
+        msgproto = std::unique_ptr<IMessageProtocol>(new MQTTWrapper(mqtt_id, mqtt_host, mqtt_port, tls_ca_file, tls_cert_file, tls_key_file, tls_insecure_mode));
     }
     auto node = RF24Node(network, *msgproto, key);
     node.set_debug(debug);

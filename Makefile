@@ -39,3 +39,4 @@ cleandeps:
 
 clean:
 	rm -f $(OBJECTS)
+	rm -f RF24Node_MsgProto
