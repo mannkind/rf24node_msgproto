@@ -80,7 +80,6 @@ int main(int argc, char *argv[]) {
                     msgproto_type = optarg;
                 } else if (option == "tls_ca_file") {
                     tls_ca_file = optarg;
-                    printf("Found your tls ca file: %s\n", tls_ca_file);
                 } else if (option == "tls_cert_file") {
                     tls_cert_file = optarg;
                 } else if (option == "tls_key_file") {
