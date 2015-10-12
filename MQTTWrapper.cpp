@@ -1,4 +1,5 @@
 #include "MQTTWrapper.h"
+#include <unistd.h>
 
 MQTTWrapper::MQTTWrapper(std::string id, std::string host, int port, std::string tls_ca_file, std::string tls_cert_file, std::string tls_key_file, bool tls_insecure_mode) : 
     mosqpp::mosquittopp(id.c_str(), true), host(host), port(port), tls_ca_file(tls_ca_file), tls_cert_file(tls_cert_file), tls_key_file(tls_key_file), tls_insecure_mode(tls_insecure_mode) {}
@@ -33,7 +34,12 @@ void MQTTWrapper::set_on_message_callback(on_msg_cb cb) {
 }
 
 void MQTTWrapper::on_connect(int rc) {
-    this->subscribe(nullptr, "/sensornet/in/#");
+    if (rc == 0) {
+        printf("Connected to MQTT\n");
+        this->subscribe(nullptr, "/sensornet/in/#");
+    } else {
+        printf("Connection error; reason code %d\n", rc);
+    }
 }
 
 void MQTTWrapper::on_log(int level, const char *str) {
@@ -41,7 +47,7 @@ void MQTTWrapper::on_log(int level, const char *str) {
 }
 
 void MQTTWrapper::on_disconnect(int mid) {
-    printf("Disconnecting from MQTT\n");
+    printf("Disconnected from MQTT\n");
     this->end();
     sleep(15);
     this->begin();
