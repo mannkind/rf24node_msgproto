@@ -60,4 +60,8 @@
       --msgproto_type: "MQTT" or "AMQP"; defaults to "MQTT"
       --mqtt_host: defaults to "localhost"
       --mqtt_port: defaults to 1883
+      --tls_ca_file: File containing certificates for CA verification (MQTT only)
+      --tls_insecure_mode: Don't attempt to verify CA certificate
+      --tls_cert_file: TLS certificate file (MQTT only)
+      --tls_key_file: TLS private key (MQTT only)
       --amqp_connstr: defaults to "localhost"
