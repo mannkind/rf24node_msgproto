@@ -65,3 +65,7 @@
       --tls_cert_file: TLS certificate file (MQTT only)
       --tls_key_file: TLS private key (MQTT only)
       --amqp_connstr: defaults to "localhost"
+
+# Notice - Unmaintained
+
+Unmaintained; I discovered MySensors and was able to replace RF24Node_MsgProto by utilizing a MySensors ESP8266/MQTT Gateway.
